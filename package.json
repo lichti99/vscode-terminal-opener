@@ -1,14 +1,30 @@
 {
   "name": "vscode-terminal-opener",
   "displayName": "TerminalOpener",
+  "author": "lichti99 <info@li-edv.de>",
+  "publisher": "lichti99",
   "description": "Open an external terminal from vscode with the actual working path.",
   "version": "0.0.1",
+  "icon": "icon.png",
+  "keywords": [
+    "terminal",
+    "vscode"
+  ],
   "engines": {
     "vscode": "^1.96.0"
   },
   "categories": [
     "Other"
   ],
+  "homepage": "https://github.com/lichti99/vscode-terminal-opener",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/lichti99/vscode-terminal-opener.git"
+	},
+  "bugs": {
+    "url": "https://github.com/lichti99/vscode-terminal-opener/issues"
+  },
+  "license": "MIT",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
