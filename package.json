@@ -31,7 +31,8 @@
     "commands": [      
       {
         "command": "terminal-opener.openterminal",
-        "title": "open Terminal"
+        "title": "Open Terminal",
+        "category": "Terminal Opener"
       }
     ]
   },
