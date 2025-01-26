@@ -4,7 +4,7 @@
   "author": "lichti99 <info@li-edv.de>",
   "publisher": "lichti99",
   "description": "Open an external terminal from vscode with the actual working path.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "icon": "icon.png",
   "keywords": [
     "terminal",
