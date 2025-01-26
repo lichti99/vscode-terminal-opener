@@ -28,10 +28,34 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+"title": "Terminal Opener",
+"properties": {
+  "terminal-opener.preferredTerminalPath": {
+    "type": "string",
+    "enum": [
+      "Workspace",
+      "Editor"
+    ],
+    "default": "Workspace",
+    "description": "Should the path of the opened editor or workspace be preferred as terminal root?"
+  }
+}
+    },
     "commands": [      
       {
-        "command": "terminal-opener.openterminal",
+        "command": "terminal-opener.open-terminal",
         "title": "Open Terminal",
+        "category": "Terminal Opener"
+      },
+      {
+        "command": "terminal-opener.open-terminal-from-workspace",
+        "title": "Open Terminal From Workspace",
+        "category": "Terminal Opener"
+      },
+      {
+        "command": "terminal-opener.open-terminal-from-editor",
+        "title": "Open Terminal From Editor",
         "category": "Terminal Opener"
       }
     ]
