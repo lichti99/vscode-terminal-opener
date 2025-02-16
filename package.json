@@ -17,10 +17,10 @@
     "Other"
   ],
   "homepage": "https://github.com/lichti99/vscode-terminal-opener",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/lichti99/vscode-terminal-opener.git"
-	},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lichti99/vscode-terminal-opener.git"
+  },
   "bugs": {
     "url": "https://github.com/lichti99/vscode-terminal-opener/issues"
   },
@@ -29,20 +29,100 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-"title": "Terminal Opener",
-"properties": {
-  "terminal-opener.preferredTerminalPath": {
-    "type": "string",
-    "enum": [
-      "Workspace",
-      "Editor"
-    ],
-    "default": "Workspace",
-    "description": "Should the path of the opened editor or workspace be preferred as terminal root?"
-  }
-}
+      "type": "object",
+      "title": "Terminal Opener",
+      "properties": {
+        "terminal-opener.preferredTerminalPath": {
+          "type": "string",
+          "enum": [
+            "Workspace",
+            "Editor"
+          ],
+          "default": "Workspace",
+          "description": "Should the path of the opened editor or workspace be preferred as terminal root?"
+        },
+        "terminal-opener.terminal-apps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "inner objects",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Enable or disable this terminal."
+              },
+              "os": {
+                "type": "string",
+                "enum": [
+                  "windows",
+                  "osx",
+                  "linux"
+                ],
+                "description": "OS this terminal runs under."
+              },
+              "app": {
+                "type": "string",
+                "description": "Terminal application to start. Path could be required if the app is not in the path"
+              },
+              "parameters": {
+                "type": "string",
+                "description": "Parameters which must be set for opening the terminal with the right path"
+              },
+              "default": {
+                "type": "boolean",
+                "description": "Open this terminal as default without asking. If more than one terminal is set as default for one operating system, the first one will be used."
+              }
+            }
+          },
+          "default": [
+            {
+              "enabled": true,
+              "name": "cmd",
+              "os": "windows",
+              "app": "cmd",
+              "parameters": " /K \"cd /D ${p}\"",
+              "default": false
+            },
+            {
+              "enabled": true,
+              "name": "Windows Terminal",
+              "os": "windows",
+              "app": "wt.exe",
+              "parameters": " /K \"cd /D ${p}\"",
+              "default": true
+            },
+            {
+              "enabled": true,
+              "name": "Terminal",
+              "os": "osx",
+              "app": "Terminal.app",
+              "parameters":"",
+              "default": false 
+            },
+            {
+              "enabled": true,
+              "name": "Iterm 2",
+              "os": "osx",
+              "app": "iTerm.app",
+              "parameters":"",
+              "default": true 
+            },
+            {
+              "enabled": true,
+              "name": "xterm",
+              "os": "linux",
+              "app": "xterm",
+              "parameters": "\"${p}\"",
+              "dwfault": true
+            }
+          ],
+          "description": "Define terminal apps for different operating systems",
+          "additionalProperties": false
+        }
+      }
     },
-    "commands": [      
+    "commands": [
       {
         "command": "terminal-opener.open-terminal",
         "title": "Open Terminal",
@@ -60,7 +140,6 @@
       }
     ]
   },
-
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",

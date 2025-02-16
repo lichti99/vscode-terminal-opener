@@ -2,7 +2,16 @@ import * as vscode from 'vscode';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { json } from 'stream/consumers';
 
+type TApp = {
+	enabled: boolean;
+	name: string;
+	os: string;
+	app: string;
+	parameters: string;
+	default: boolean;
+}
 export function activate(context: vscode.ExtensionContext) {
 
 	const openTerminal = vscode.commands.registerCommand('terminal-opener.open-terminal', async () => {
@@ -87,28 +96,108 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() { }
 
 function open(p: string) {
-	const cmd = vscode.workspace.getConfiguration('terminal').external;
-	if (!fs.lstatSync(p).isDirectory()) {
-		p = path.dirname(p);
-	}
-
+	console.log('open called');
+	let terminaApps: Array<TApp> | undefined;
+	terminaApps = vscode.workspace.getConfiguration('terminal-opener').get('terminal-apps');
+	console.log(terminaApps);
 	switch (process.platform) {
 		case 'win32': {
-			childProcess.exec(`start "" "${cmd.windowsExec || "cmd"}" /K "cd /D "${p}""`);
+			terminaApps = terminaApps!.filter(item => item.os === 'windows');
+			const enabledTerminalApps = terminaApps.filter(item => item.enabled);
+			const defaultTerminalApps = terminaApps.filter(item => item.default);
+			if (defaultTerminalApps.length > 1) {
+				vscode.window.showInformationMessage('You have more than one default terminal app set in your settings.json!');
+			} else if (defaultTerminalApps.length === 0) {
+				vscode.window.showInformationMessage('You have no default terminal app set in your settings.json!');
+			} else {
+
+			}
+
+			let items = [];
+			if (enabledTerminalApps.length > 1) {
+				for (let i = 0; i < enabledTerminalApps.length; i++) {
+					items.push(enabledTerminalApps[i].name);
+					vscode.window.showQuickPick(items)
+						.then((selection) => {
+							const term = terminaApps!.find(i => i.name === selection);
+							if (term?.parameters === null) {
+								childProcess.exec(`open -a "${term?.app}" ${p}`);
+							} else {
+								childProcess.exec(`open -a "${term?.app}" ${term?.parameters} ${p}`);
+							}
+						});
+				};
+			};
 			break;
 		}
 		case 'darwin': {
-			childProcess.exec(`open -a "${cmd.osxExec || 'Terminal.app'}" "${p}"`);
-			break;
+			terminaApps = terminaApps!.filter(item => item.os === 'osx');
+			const enabledTerminalApps = terminaApps.filter(item => item.enabled);
+			if (enabledTerminalApps.length === 0) {
+				vscode.window.showInformationMessage('You have no terminal app enabled in your settings.json!');
+			} else {
+				const defaultTerminalApps = enabledTerminalApps.filter(item => item.default);
+				if (defaultTerminalApps.length === 1) {
+					openTerminalApp(defaultTerminalApps[0], 'osx');
+				} else {
+					let items = [];
+					if (enabledTerminalApps.length > 1) {
+						for (let i = 0; i < enabledTerminalApps.length; i++) {
+							items.push(enabledTerminalApps[i].name);
+							vscode.window.showQuickPick(items)
+								.then((selection) => {
+									const term = enabledTerminalApps!.find(i => i.name === selection);
+									openTerminalApp(term!, 'osx');
+								});
+						}
+					}
+				}
+				break;
+			}
 		}
 		case 'linux': {
-			if (!cmd.linuxExec) {
-				vscode.window.showErrorMessage('You have not set a linux terminal under "terminal.external.linuxExec in your settings.json!');
-			}
 			break;
 		}
 		default: {
 			break;
+		}
+	}
+
+	function openTerminalApp(term: TApp, os: string) {
+		console.log('term: ', term);
+		if (term !== undefined) {
+			console.log('term !== undefined');
+			switch (os) {
+				// copilot generated code: review and test
+				case 'windows': {
+					if (term!.parameters === null) {
+						console.log('term!.parameters === null');
+						childProcess.exec(`start "" "${term!.app}" /K "cd /D "${p}""`);
+					} else {
+						childProcess.exec(`start "" "${term!.app}" ${term!.parameters} ${p}`);
+					};
+					break;
+				}
+				case 'osx': {
+					if (term!.parameters === null) {
+						console.log('term!.parameters === null');
+						childProcess.exec(`open -a "${term!.app}" ${p}`);
+					} else {
+						childProcess.exec(`open -a "${term!.app}" ${term!.parameters} ${p}`);
+					};
+					break;
+				}
+				// copilot generated code: review and test
+				case 'linux': {
+					if (term!.parameters === null) {
+						console.log('term!.parameters === null');
+						childProcess.exec(`${term!.app} ${p}`);
+					} else {
+						childProcess.exec(`${term!.app} ${term!.parameters} ${p}`);
+					};
+					break;
+				}
+			}
 		}
 	}
 }
